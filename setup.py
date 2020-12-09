@@ -12,17 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from glob import glob
 import io
 import os
 
 import setuptools
+from setuptools.extension import Extension
 from setuptools import setup, find_packages
 
 name = "googleapis-common-protos"
 description = "Common protobufs used in Google APIs"
 version = "1.52.0"
 release_status = "Development Status :: 5 - Production/Stable"
-dependencies = ["protobuf >= 3.6.0"]
+dependencies = [
+    "protobuf >= 3.6.0",
+    "protobuf_distutils",
+]
 
 extras_require = {"grpc": ["grpcio >= 1.0.0"]}
 
@@ -62,4 +67,26 @@ setuptools.setup(
     namespace_packages=["google", "google.logging"],
     url="https://github.com/googleapis/python-api-common-protos",
     include_package_data=True,
+
+    options={
+        'generate_py_protobufs': {
+            'source_dir':        './google',
+            'proto_root_path': '.',
+            'use_cpp_messages': True,
+        },
+    },
+
+    ext_modules=[
+        Extension(
+            'google.api._descriptors',
+            sources=glob('google/**/*.pb.cc', recursive=True) + [
+                '_descriptors.c',
+            ],
+            extra_compile_args=['-g0'],
+            extra_link_args=[
+                '-Wl,--no-gc-sections',
+                '-Wl,--unresolved-symbols=ignore-all',
+            ],
+        ),
+    ],
 )
