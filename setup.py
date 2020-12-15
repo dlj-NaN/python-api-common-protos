@@ -26,7 +26,6 @@ version = "1.52.0"
 release_status = "Development Status :: 5 - Production/Stable"
 dependencies = [
     "protobuf >= 3.6.0",
-    "protobuf_distutils",
 ]
 
 extras_require = {"grpc": ["grpcio >= 1.0.0"]}
@@ -58,6 +57,7 @@ setuptools.setup(
     description=description,
     long_description=readme,
     long_description_content_type="text/markdown",
+    setup_requires=["protobuf_distutils"],
     install_requires=dependencies,
     extras_require=extras_require,
     license="Apache-2.0",
@@ -70,6 +70,7 @@ setuptools.setup(
 
     options={
         'generate_py_protobufs': {
+            'descriptor_extension_name': 'google.api_common_protos._descriptors',
             'source_dir':        './google',
             'proto_root_path': '.',
             'use_cpp_messages': True,
@@ -78,9 +79,9 @@ setuptools.setup(
 
     ext_modules=[
         Extension(
-            'google.api._descriptors',
+            'google.api_common_protos._descriptors',
             sources=glob('google/**/*.pb.cc', recursive=True) + [
-                '_descriptors.c',
+                'google/api_common_protos/_descriptors.c',
             ],
             extra_compile_args=['-g0'],
             extra_link_args=[
